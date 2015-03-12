@@ -6,6 +6,7 @@ from pytg.utils import coroutine, broadcast
 from pytg.tg import (
 dialog_list, chat_info, message, user_status,
 )
+from time import sleep
 
 
 def updateDb():
@@ -66,7 +67,7 @@ def command_parser(chat_group, tg):
     try:
         while True:
             msg = (yield)
-            if msg['group'] == chat_group:
+            if  msg.has_key('group') and msg['group'] == chat_group:
                 query = msg['message'].lower().strip()
                 if  query == 'bot:help':
                     print "Help requested"
@@ -112,7 +113,7 @@ def command_parser(chat_group, tg):
                     break
                 elif query == 'bot:update':
                     print "Someone asked me to update the database"
-                    tg.msg(chat_group,"I'm going to fetch updates. It may take upto 30 seconds")
+                    tg.msg(chat_group,"I'm going to fetch updates. It may take upto 3 minutes")
                     os.system("python ./fantasyScraper.py")
                     fantasyTeams = updateDb()
                     tg.msg(chat_group,"Okay, done")
@@ -132,9 +133,11 @@ tg.register_pipeline(pipeline)
 
 tg.start()
 while True:
-    # Keep on polling so that messages will pass through our pipeline
     tg.poll()
+    
 tg.quit()
+
+
 
 
 
