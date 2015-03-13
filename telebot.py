@@ -49,17 +49,27 @@ def findTheirTeam(username, fantasyTeams):
 
 def findWhoHas(player,fantasyTeams):
     toRet = ""
-    owners = ""
-    playerName = ""
+    if len(player) < 3: return "Query too short, can you give me more to work with?"
+    foundPlayers = {}
     for user, team in fantasyTeams.items():
         for myPlayer in team.getPlayers():
             if myPlayer.lower().find(player) != -1:                
-                playerName = myPlayer
-                owners += user + ","
+                if foundPlayers.has_key(myPlayer):
+                    foundPlayers[myPlayer].append(user)
+                else:
+                    foundPlayers[myPlayer] = [user]
                 break
-    toRet = playerName + " owned by " + owners
-    if playerName != "": return toRet
-    else: return None
+    uniquePlayers = len(foundPlayers.keys())
+    if uniquePlayers > 2: return "I found too many similar-named players. Can you do better?"
+    elif uniquePlayers > 0:
+        for foundPlayer, foundUsers in foundPlayers.items():
+            toRet += foundPlayer + " owned by "
+            for foundUser in foundUsers:
+                toRet += foundUser + ","
+            toRet += "\n"
+        return toRet
+    else: return "Sorry, I couldnt find that player. Perhaps refine your query?"
+
 
 @coroutine
 def command_parser(chat_group, tg):
@@ -94,12 +104,9 @@ def command_parser(chat_group, tg):
                     player = query.split('bot:whohas')[1].strip()
                     print "Someone wants to know who has "+ player
                     Response = findWhoHas(player,fantasyTeams)
-                    if Response is not None:
-                        print Response
-                        tg.msg(chat_group,Response)
-                    else:
-                        tg.msg(chat_group,"Sorry, I couldnt find that player. Perhaps refine your query?")
-                #    tg.msg(chat_group,"I'm good")
+                    print Response
+                    for line in Response.split('\n'):
+                        tg.msg(chat_group,line)
                 elif query == 'bot:captains':
                     print "Someone wants to know captains"
                     Response = getCaptains(fantasyTeams)
@@ -133,8 +140,11 @@ tg.register_pipeline(pipeline)
 
 tg.start()
 while True:
+    #try:
     tg.poll()
-    
+    #except:
+    #    print "Exception thrown, lets deal with it"
+    #    sleep(1)    
 tg.quit()
 
 
