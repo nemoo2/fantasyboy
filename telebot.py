@@ -147,6 +147,7 @@ def command_parser(chat_group, tg):
                     print "Someone asked me to update the database"
                     tg.msg(chat_group,"I'm going to fetch updates. It may take upto 3 minutes")
                     updateDatabase()
+                    fantasyTeams = updateDb()
                     tg.msg(chat_group,"Okay, done")
                 if Response is not None:
                     print Response
@@ -161,7 +162,7 @@ pubkey = '/home/shreyas/Programs/Scraper/pytg/tg/tg.pub'
 
 tg = pytg.Telegram(telegram, pubkey)
 
-pipeline = message(command_parser('bot_debug', tg))
+pipeline = message(command_parser('cwc', tg))
 
 tg.register_pipeline(pipeline)
 
