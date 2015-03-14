@@ -40,21 +40,48 @@ def initFantasyPage():
 	signin.click()
 	return b
 
+class player:
+        def __init__(self):
+                self.captain = False
+                self.name = ""
+                self.team = ""
+        def setName(self,name):
+                self.name = name
+        def setAsCaptain(self):
+                self.captain = True
+        def setTeam(self,team):
+                self.team = team
+        def getName(self):
+                return self.name
+        def isCaptain(self):
+                return self.captain
+        def getTeam(self):
+                return self.team
+        def __eq__(self,other):
+                return self.getName() == other.getName() and self.getTeam() == other.getTeam()
+        def __has__(self):
+                return self.getName()+self.getTeam()
+
 class team:
 	def __init__(self):
-		self.captain = None
 		self.players = []
 	
 	def setPlayers(self,playersString):
 		items = playersString.split('\n')
 		for i in range(0,11):
-			self.players.append(items[3*i+1])
+                        playerX = player()
+                        playerX.setName(items[3*i+1])
+                        playerX.setTeam(items[3*i+0])
+			self.players.append(playerX)
 
 	def setCaptain(self,captain):
-		self.captain = captain
+                for player in self.players:
+                        if player.getName() == captain:
+                                player.setAsCaptain()
 
         def getCaptain(self):
-                return self.captain
+                for player in self.players:
+                        if player.isCaptain(): return player
 
         def getPlayers(self):
                 return self.players
@@ -63,7 +90,7 @@ class team:
 		toRet = ""
 		for player in self.players:
 			toRet += player
-			if(player == self.captain): toRet += "*\n"
+			if player.isCaptain(): toRet += "*\n"
 			else: toRet += "\n"
 		return toRet
 

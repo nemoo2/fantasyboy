@@ -1,4 +1,4 @@
-from fantasyScraper import team
+from fantasyScraper import team,player
 import pickle
 import pytg
 import os
@@ -16,11 +16,11 @@ def updateDb():
 
 def getCaptains(fantasyTeams):
     print fantasyTeams
-    toRet = ""
+    toRet = "Here are the captains right now:\n"
     capDict = {}
     for user, team in fantasyTeams.items():
-        captain = team.getCaptain()
-        if capDict.has_key(captain):
+        captain = team.getCaptain().getName()
+        if captain in capDict:
             capDict[captain].append(user)
         else:
             capDict[captain] = [user]
@@ -39,13 +39,13 @@ def findTheirTeam(username, fantasyTeams):
         if user.lower().find(username) != -1:
             toRet += user + " : " 
             for player in team.getPlayers():
-                if player == team.getCaptain():
-                    toRet += player + "*,"
+                if player.isCaptain():
+                    toRet += player.getName() + "*,"
                 else:
-                    toRet += player + ","
+                    toRet += player.getName() + ","
             break
     if toRet != "" : return toRet
-    else: return None
+    else: return "I couldn't find this user buddy"
 
 def findWhoHas(player,fantasyTeams):
     toRet = ""
@@ -53,11 +53,11 @@ def findWhoHas(player,fantasyTeams):
     foundPlayers = {}
     for user, team in fantasyTeams.items():
         for myPlayer in team.getPlayers():
-            if myPlayer.lower().find(player) != -1:                
-                if foundPlayers.has_key(myPlayer):
-                    foundPlayers[myPlayer].append(user)
+            if myPlayer.getName().lower().find(player) != -1:                
+                if myPlayer.getName() in foundPlayers:
+                    foundPlayers[myPlayer.getName()].append(user)
                 else:
-                    foundPlayers[myPlayer] = [user]
+                    foundPlayers[myPlayer.getName()] = [user]
                 break
     uniquePlayers = len(foundPlayers.keys())
     if uniquePlayers > 2: return "I found too many similar-named players. Can you do better?"
@@ -70,50 +70,75 @@ def findWhoHas(player,fantasyTeams):
         return toRet
     else: return "Sorry, I couldnt find that player. Perhaps refine your query?"
 
+def getHelpMenu():
+    print  "Help requested"
+    toRet = "My commands are (prefix with bot:)\n"
+    toRet += "captains\n"
+    toRet += "whohas <playername>\n"
+    toRet += "user <username>\n"
+    toRet += "status\n"
+    toRet += "update\n"
+    toRet += "from <country>\n"
+    toRet += "stop"
+    return toRet
 
+def getStatus():
+    toRet = "I'm good"
+    return toRet
+
+def updateDatabase():
+    os.system("python ./fantasyScraper.py")
+
+def fromCountry(teamName,fantasyTeams):
+    print "Someone wants to know players from:" + teamName
+    print fantasyTeams
+    country = "???"
+    playerTeamMapping = {}
+    for user,team in fantasyTeams.items():
+        for player in team.getPlayers():
+            if player.getTeam().lower().find(teamName) != -1:
+                country = player.getTeam()
+                if player.getName() in playerTeamMapping:
+                    playerTeamMapping[player.getName()].append(user)
+                else: playerTeamMapping[player.getName()] = [user]
+    if len(playerTeamMapping.keys()) > 0:
+        toRet = "Following from " + country + " found:\n"
+        for player,users in playerTeamMapping.items():
+            toRet += player + " owned by "
+            for user in users:
+                toRet += user + ","
+            toRet += "\n"
+    else:
+        toRet = "No players found from " + teamName
+    return toRet
+        
 @coroutine
 def command_parser(chat_group, tg):
     fantasyTeams = updateDb()
     try:
         while True:
             msg = (yield)
-            if  msg.has_key('group') and msg['group'] == chat_group:
+            Response = None
+            if  'group' in msg and msg['group'] == chat_group:
                 query = msg['message'].lower().strip()
                 if  query == 'bot:help':
-                    print "Help requested"
-                    tg.msg(chat_group,"My commands are (prefix with bot:)")
-                    tg.msg(chat_group,"captains")
-                    tg.msg(chat_group,"whohas <playername>")
-                    tg.msg(chat_group,"user <username>")
-                    tg.msg(chat_group,"status")
-                    tg.msg(chat_group,"update")
-                    tg.msg(chat_group,"stop")
+                    Response = getHelpMenu()
                 elif query == 'bot:status':
                     print "Status requested"
-                    tg.msg(chat_group,"I'm good")
+                    Response = getStatus()
                 elif query.find('bot:user') != -1:
                     username = query.split('bot:user')[1].strip()
                     Response = findTheirTeam(username, fantasyTeams)
-                    if Response is not None:
-                        print Response
-                        for line in Response.split('\n'):
-                            tg.msg(chat_group,line)
-                    else:
-                        tg.msg(chat_group,"I couldn't find this user buddy")
+                elif query.find('bot:from') != -1:
+                    country = query.split('bot:from')[1].strip()
+                    Response = fromCountry(country,fantasyTeams)
                 elif query.find('bot:whohas') != -1:
                     player = query.split('bot:whohas')[1].strip()
                     print "Someone wants to know who has "+ player
                     Response = findWhoHas(player,fantasyTeams)
-                    print Response
-                    for line in Response.split('\n'):
-                        tg.msg(chat_group,line)
                 elif query == 'bot:captains':
                     print "Someone wants to know captains"
                     Response = getCaptains(fantasyTeams)
-                    print Response
-                    tg.msg(chat_group,"Here are the captains right now..")
-                    for line in Response.split('\n'):
-                        tg.msg(chat_group,line)
                 elif query == 'bot:stop':
                     tg.msg(chat_group,"Stopping. Bye")
                     print "Stopping program"
@@ -121,10 +146,12 @@ def command_parser(chat_group, tg):
                 elif query == 'bot:update':
                     print "Someone asked me to update the database"
                     tg.msg(chat_group,"I'm going to fetch updates. It may take upto 3 minutes")
-                    os.system("python ./fantasyScraper.py")
-                    fantasyTeams = updateDb()
+                    updateDatabase()
                     tg.msg(chat_group,"Okay, done")
-                
+                if Response is not None:
+                    print Response
+                    for line in Response.split('\n'):
+                        tg.msg(chat_group,line.rstrip(','))
     except GeneratorExit:
         pass
 
@@ -134,7 +161,7 @@ pubkey = '/home/shreyas/Programs/Scraper/pytg/tg/tg.pub'
 
 tg = pytg.Telegram(telegram, pubkey)
 
-pipeline = message(command_parser('cwc', tg))
+pipeline = message(command_parser('bot_debug', tg))
 
 tg.register_pipeline(pipeline)
 
