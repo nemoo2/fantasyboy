@@ -1,4 +1,4 @@
-from fantasyScraper import team,player
+from fantasyScraper import team,player,gameInfo
 import pickle
 import pytg
 import os
@@ -7,6 +7,7 @@ from pytg.tg import (
 dialog_list, chat_info, message, user_status,
 )
 from time import sleep
+from datetime import datetime, timedelta
 
 
 def updateDb():
@@ -58,7 +59,6 @@ def findWhoHas(player,fantasyTeams):
                     foundPlayers[myPlayer.getName()].append(user)
                 else:
                     foundPlayers[myPlayer.getName()] = [user]
-                break
     uniquePlayers = len(foundPlayers.keys())
     if uniquePlayers > 2: return "I found too many similar-named players. Can you do better?"
     elif uniquePlayers > 0:
@@ -79,6 +79,7 @@ def getHelpMenu():
     toRet += "status\n"
     toRet += "update\n"
     toRet += "from <country>\n"
+    toRet += "next\n"
     toRet += "stop"
     return toRet
 
@@ -112,9 +113,17 @@ def fromCountry(teamName,fantasyTeams):
         toRet = "No players found from " + teamName
     return toRet
         
+def getNextInfo(game):
+    now = datetime.now()
+    td = game.getGameTime()-now+timedelta(hours=1)
+    toRet = "Next game: " + game.getTeams() + " in " + str(td.seconds/60) + " minutes"
+    return toRet
+
+
 @coroutine
 def command_parser(chat_group, tg):
-    fantasyTeams = updateDb()
+    [game,fantasyTeams] = updateDb()
+    #fantasyTeams = updateDb()
     try:
         while True:
             msg = (yield)
@@ -126,6 +135,9 @@ def command_parser(chat_group, tg):
                 elif query == 'bot:status':
                     print "Status requested"
                     Response = getStatus()
+                elif query == 'bot:next':
+                    print "Next game requested"
+                    Response = getNextInfo(game)
                 elif query.find('bot:user') != -1:
                     username = query.split('bot:user')[1].strip()
                     Response = findTheirTeam(username, fantasyTeams)
@@ -147,7 +159,8 @@ def command_parser(chat_group, tg):
                     print "Someone asked me to update the database"
                     tg.msg(chat_group,"I'm going to fetch updates. It may take upto 3 minutes")
                     updateDatabase()
-                    fantasyTeams = updateDb()
+                    [game, fantasyTeams] = updateDb()
+                    #fantasyTeams = updateDb()
                     tg.msg(chat_group,"Okay, done")
                 if Response is not None:
                     print Response
@@ -162,20 +175,16 @@ pubkey = '/home/shreyas/Programs/Scraper/pytg/tg/tg.pub'
 
 tg = pytg.Telegram(telegram, pubkey)
 
-pipeline = message(command_parser('cwc', tg))
+pipeline = message(command_parser('bot_debug', tg))
 
 tg.register_pipeline(pipeline)
 
 tg.start()
 while True:
-    #try:
-    tg.poll()
-    #except:
-    #    print "Exception thrown, lets deal with it"
-    #    sleep(1)    
+    try:
+        tg.poll()
+    except Exception,e:
+        print e
+        print "Exception thrown, lets deal with it"
+        sleep(1)
 tg.quit()
-
-
-
-
-

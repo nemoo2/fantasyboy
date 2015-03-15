@@ -2,6 +2,9 @@ from splinter import Browser
 import re	
 from bs4 import BeautifulSoup
 import pickle
+import time
+from time import mktime
+from datetime import datetime
 
 
 LeagueUrl = "https://fantasy.icc-cricket.com/cwc/homepage/homepage/"
@@ -109,11 +112,41 @@ def getTeam(number, browserSession):
 	return playersTeam
 
 
+class gameInfo:
+        def __init__(self):
+                self.team1 = ""
+                self.team2 = ""
+                self.gameTime = None
+        def setTeams(self,team1, team2):
+                self.team1 = team1
+                self.team2 = team2
+        def setGameTime(self,gameTime):
+                self.gameTime = gameTime
+        def getTeams(self):
+                return self.team1 + " vs " + self.team2
+        def getGameTime(self):
+                return self.gameTime
+
+def getNextGame(mySession):
+        mySession.visit(LeagueUrl)
+        matchInfo = mySession.find_by_id('expectedmatchdate').text
+        team1 = mySession.find_by_id('nextmatchfull1').text
+        team2 = mySession.find_by_id('nextmatchfull2').text
+        now = datetime.now()
+        matchTimeString = matchInfo.split('(')[0]
+        matchDate = time.strptime(matchTimeString + " " + str(now.year),  "%d %b %I:%M:%S %p %Y")
+        matchTime = datetime.fromtimestamp(mktime(matchDate))
+        nextGame = gameInfo()
+        nextGame.setGameTime(matchTime)
+        nextGame.setTeams(team1, team2)
+        return nextGame
 
 if __name__=="__main__":
 	mySession = initFantasyPage()
+        nextGameInfo = getNextGame(mySession)
         leagueTeams = {}
 	for user,number in LeagueTeams.items():
 		usersTeam = getTeam(number, mySession)
                 leagueTeams[user] = usersTeam
-        pickle.dump(leagueTeams, open("leagueDb.pl", "wb"))
+        pickle.dump([nextGameInfo,leagueTeams], open("leagueDb.pl", "wb"))
+        #pickle.dump(leagueTeams, open("leagueDb.pl", "wb"))
