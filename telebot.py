@@ -116,7 +116,7 @@ def fromCountry(teamName,fantasyTeams):
 def getNextInfo(game):
     now = datetime.now()
     td = game.getGameTime()-now+timedelta(hours=1)
-    toRet = "Next game: " + game.getTeams() + " in " + str(td.seconds/60) + " minutes"
+    toRet = "Next game: " + game.getTeams() + " in " + str(td.days) + " days " + str(td.seconds/60) + " minutes"
     return toRet
 
 
