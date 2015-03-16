@@ -175,7 +175,7 @@ pubkey = '/home/shreyas/Programs/Scraper/pytg/tg/tg.pub'
 
 tg = pytg.Telegram(telegram, pubkey)
 
-pipeline = message(command_parser('bot_debug', tg))
+pipeline = message(command_parser('cwc', tg))
 
 tg.register_pipeline(pipeline)
 

@@ -5,13 +5,19 @@ import pickle
 import time
 from time import mktime
 from datetime import datetime
-
+import os
+import sys
 
 LeagueUrl = "https://fantasy.icc-cricket.com/cwc/homepage/homepage/"
 DefaultSigninPage = "http://fantasy.icc-cricket.com/"
 
-MY_USERNAME=""
-MY_PASSWORD=""
+MY_USERNAME=os.environ.get("FANTASY_USERNAME")
+MY_PASSWORD=os.environ.get("FANTASY_PASSWORD")
+
+if MY_USERNAME is None or MY_PASSWORD is None:
+        print "Fantasy username/password not found. Please set them using"
+        print "FANTASY_USERNAME and FANTASY_PASSWORD environment variables"
+        sys.exit(0)
 
 LeagueTeams = dict()
 
