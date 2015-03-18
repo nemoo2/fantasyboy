@@ -20,11 +20,13 @@ def getCaptains(fantasyTeams):
     toRet = "Here are the captains right now:\n"
     capDict = {}
     for user, team in fantasyTeams.items():
-        captain = team.getCaptain().getName()
-        if captain in capDict:
-            capDict[captain].append(user)
-        else:
-            capDict[captain] = [user]
+        captain = team.getCaptain()
+        if captain is not None:
+            capName = captain.getName()
+            if capName in capDict:
+                capDict[capName].append(user)
+            else:
+                capDict[capName] = [user]
     print capDict
 
     for captain, users in capDict.items():
@@ -184,7 +186,6 @@ while True:
     try:
         tg.poll()
     except Exception,e:
-        print e
         print "Exception thrown, lets deal with it"
         sleep(1)
 tg.quit()

@@ -1,6 +1,7 @@
 from splinter import Browser
 import re	
 from bs4 import BeautifulSoup
+
 import pickle
 import time
 from time import mktime
@@ -79,7 +80,7 @@ class team:
 		items = playersString.split('\n')
 		for i in range(0,11):
                         playerX = player()
-                        playerX.setName(items[3*i+1])
+                        playerX.setName(items[3*i+1].strip())
                         playerX.setTeam(items[3*i+0])
 			self.players.append(playerX)
 
@@ -98,7 +99,7 @@ class team:
 	def __str__(self):
 		toRet = ""
 		for player in self.players:
-			toRet += player
+			toRet += player.getName()
 			if player.isCaptain(): toRet += "*\n"
 			else: toRet += "\n"
 		return toRet
@@ -112,8 +113,8 @@ def getTeam(number, browserSession):
 	playersTeam.setPlayers(players.text)
 	
 	soup = BeautifulSoup(browserSession.html)
-	captain = soup.find("li", {"class":"playercard_dc powerplayer_dc"})["ss"]
-	
+	captain = soup.find("li", {"class":"playercard_dc powerplayer_dc"})["ss"].strip()
+
 	playersTeam.setCaptain(captain)
 	return playersTeam
 
