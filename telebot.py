@@ -8,6 +8,7 @@ dialog_list, chat_info, message, user_status,
 )
 from time import sleep
 from datetime import datetime, timedelta
+import sys
 
 
 def updateDb():
@@ -172,8 +173,14 @@ def command_parser(chat_group, tg):
         pass
 
 
-telegram = '/home/shreyas/Programs/Scraper/pytg/tg/telegram'
-pubkey = '/home/shreyas/Programs/Scraper/pytg/tg/tg.pub'
+telepath = os.environ.get("TG_PATH") 
+pubkey = os.environ.get("TG_PUBKEY")
+if telepath is None or pubkey is None:
+    print "Please set TG_PATH environment variable"
+    print "Set TG_PUBKEY to point to your public key"
+    sys.exit(0)
+telegram = telepath + "/telegram"
+
 
 tg = pytg.Telegram(telegram, pubkey)
 
