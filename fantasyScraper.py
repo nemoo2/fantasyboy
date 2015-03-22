@@ -136,12 +136,14 @@ class gameInfo:
 
 def getNextGame(mySession):
         mySession.visit(LeagueUrl)
+#        print mySession.html.encode('utf-8').strip()
+
         matchInfo = mySession.find_by_id('expectedmatchdate').text
         team1 = mySession.find_by_id('nextmatchfull1').text
         team2 = mySession.find_by_id('nextmatchfull2').text
         now = datetime.now()
         matchTimeString = matchInfo.split('(')[0]
-        matchDate = time.strptime(matchTimeString + " " + str(now.year),  "%d %b %I:%M:%S %p %Y")
+        matchDate = time.strptime(matchTimeString.rsplit(" ",1)[0] + " " + str(now.year),  "%d %b %I:%M:%S %p %Y")
         matchTime = datetime.fromtimestamp(mktime(matchDate))
         nextGame = gameInfo()
         nextGame.setGameTime(matchTime)
