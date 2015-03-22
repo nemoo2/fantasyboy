@@ -149,11 +149,13 @@ def getNextGame(mySession):
         return nextGame
 
 if __name__=="__main__":
-	mySession = initFantasyPage()
-        nextGameInfo = getNextGame(mySession)
-        leagueTeams = {}
-	for user,number in LeagueTeams.items():
-		usersTeam = getTeam(number, mySession)
-                leagueTeams[user] = usersTeam
-        pickle.dump([nextGameInfo,leagueTeams], open("leagueDb.pl", "wb"))
-        #pickle.dump(leagueTeams, open("leagueDb.pl", "wb"))
+        mySession = initFantasyPage()
+        try:
+                nextGameInfo = getNextGame(mySession)
+                leagueTeams = {}
+                for user,number in LeagueTeams.items():
+                        usersTeam = getTeam(number, mySession)
+                        leagueTeams[user] = usersTeam
+                pickle.dump([nextGameInfo,leagueTeams], open("leagueDb.pl", "wb"))
+        finally:
+                mySession.quit()
