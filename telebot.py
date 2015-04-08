@@ -117,6 +117,7 @@ def fromCountry(teamName,fantasyTeams):
     return toRet
         
 def getNextInfo(game):
+    if game is None: return "Cannot get next game info"
     now = datetime.now()
     td = game.getGameTime()-now+timedelta(hours=1)
     toRet = "Next game: " + game.getTeams() + " in " + str(td.days) + " days " + str(td.seconds/60) + " minutes"
@@ -184,7 +185,7 @@ telegram = telepath + "/telegram"
 
 tg = pytg.Telegram(telegram, pubkey)
 
-pipeline = message(command_parser('cwc', tg))
+pipeline = message(command_parser('Ipl', tg))
 
 tg.register_pipeline(pipeline)
 

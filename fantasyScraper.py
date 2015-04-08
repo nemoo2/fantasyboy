@@ -9,8 +9,10 @@ from datetime import datetime
 import os
 import sys
 
-LeagueUrl = "https://fantasy.icc-cricket.com/cwc/homepage/homepage/"
-DefaultSigninPage = "http://fantasy.icc-cricket.com/"
+#LeagueUrl = "https://fantasy.icc-cricket.com/cwc/homepage/homepage/"
+#DefaultSigninPage = "http://fantasy.icc-cricket.com/"
+LeagueUrl = "https://fantasy.iplt20.com/ifl/homepage/homepage/"
+DefaultSigninPage = "https://fantasy.iplt20.com/ifl/default/index"
 
 MY_USERNAME=os.environ.get("FANTASY_USERNAME")
 MY_PASSWORD=os.environ.get("FANTASY_PASSWORD")
@@ -22,16 +24,14 @@ if MY_USERNAME is None or MY_PASSWORD is None:
 
 LeagueTeams = dict()
 
-LeagueTeams['Akshay'] = "233314"
-LeagueTeams['Ripu'] = "46933"
-LeagueTeams['Yenan'] = "122160"
-LeagueTeams['Sri'] = "167401"
-LeagueTeams['Shreyas'] = "46941"
-LeagueTeams['Vinish'] = "187254"
-LeagueTeams['Ali'] = "46943"
-LeagueTeams['Tom'] = "147897"
-LeagueTeams['Atin'] = "169823"
-
+LeagueTeams['Akshay'] = "1606127"
+LeagueTeams['Ripu'] = "1606916"
+LeagueTeams['Yenan'] = "1558451"
+LeagueTeams['Sri'] = "1482899"
+LeagueTeams['Shreyas'] = "1559999"
+#LeagueTeams['Vinish'] = "187254"
+LeagueTeams['Ali'] = "1593401"
+LeagueTeams['Anmol'] = "906088"
 
 def initFantasyPage():
 	b = Browser()
@@ -113,11 +113,18 @@ def getTeam(number, browserSession):
 	playersTeam.setPlayers(players.text)
 	
 	soup = BeautifulSoup(browserSession.html)
-	captain = soup.find("li", {"class":"playercard_dc powerplayer_dc"})["ss"].strip()
+	captain = getCaptain(soup)
 
 	playersTeam.setCaptain(captain)
 	return playersTeam
 
+def getCaptain(soup):
+        captain = None
+        for playerInfo in soup.find("li", {"class":"playercard_dc powerplayer_dc"}):
+                items = playerInfo.find("p",{"id":"player_namek_dc"})
+                if items is not None:
+                        captain = items.text.strip()
+        return captain
 
 class gameInfo:
         def __init__(self):
@@ -153,7 +160,8 @@ def getNextGame(mySession):
 if __name__=="__main__":
         mySession = initFantasyPage()
         try:
-                nextGameInfo = getNextGame(mySession)
+#                nextGameInfo = getNextGame(mySession)
+                nextGameInfo = None
                 leagueTeams = {}
                 for user,number in LeagueTeams.items():
                         usersTeam = getTeam(number, mySession)
