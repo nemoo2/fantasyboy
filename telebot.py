@@ -132,7 +132,7 @@ def command_parser(chat_group, tg):
         while True:
             msg = (yield)
             Response = None
-            if  'group' in msg and msg['group'] == chat_group:
+            if  'gid' in msg and (msg['gid'] == chat_group or msg['gid'] == '(null)'):
                 query = msg['message'].lower().strip()
                 if  query == 'bot:help':
                     Response = getHelpMenu()
@@ -174,13 +174,13 @@ def command_parser(chat_group, tg):
         pass
 
 
-telepath = os.environ.get("TG_PATH") 
+telegram = os.environ.get("TG_BIN")
 pubkey = os.environ.get("TG_PUBKEY")
-if telepath is None or pubkey is None:
+if telegram is None or pubkey is None:
     print "Please set TG_PATH environment variable"
     print "Set TG_PUBKEY to point to your public key"
     sys.exit(0)
-telegram = telepath + "/telegram"
+
 
 
 tg = pytg.Telegram(telegram, pubkey)
