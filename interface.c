@@ -2886,7 +2886,6 @@ void print_message (struct in_ev *ev, struct tgl_message *M) {
       print_date (ev, M->date);
       mpop_color (ev);
       mprintf (ev, " ");
-      //      printf (" {print_message} "); //Shreyashack
       print_user_name (ev, M->to_id, tgl_peer_get (TLS, M->to_id));
       mpush_color (ev, COLOR_GREEN);
       if (M->unread) {
@@ -2902,7 +2901,6 @@ void print_message (struct in_ev *ev, struct tgl_message *M) {
       print_date (ev, M->date);
       mpop_color (ev);
       mprintf (ev, " ");
-      //      printf (" {print_message} "); //Shreyashack
       print_user_name (ev, M->from_id, tgl_peer_get (TLS, M->from_id));
       mpush_color (ev, COLOR_BLUE);
       if (M->unread) {
@@ -2915,7 +2913,6 @@ void print_message (struct in_ev *ev, struct tgl_message *M) {
     tgl_peer_t *P = tgl_peer_get (TLS, M->to_id);
     assert (P);
     if (M->out) {
-      //      printf (" {print_message} "); //Shreyashack
       mpush_color (ev, COLOR_GREEN);
       if (msg_num_mode) {
         mprintf (ev, "%lld ", M->id);
@@ -2937,7 +2934,6 @@ void print_message (struct in_ev *ev, struct tgl_message *M) {
       }
       print_date (ev, M->date);
       mpush_color (ev, COLOR_CYAN);
-      //      printf (" {print_message} "); //Shreyashack
       mprintf (ev, " %s", P->print_name);
       mpop_color (ev);
       if (M->unread) {
@@ -2948,7 +2944,6 @@ void print_message (struct in_ev *ev, struct tgl_message *M) {
     }
   } else {
     assert (tgl_get_peer_type (M->to_id) == TGL_PEER_CHAT);
-
     mpush_color (ev, COLOR_MAGENTA);
     if (msg_num_mode) {
       mprintf (ev, "%lld ", M->id);
@@ -2956,7 +2951,7 @@ void print_message (struct in_ev *ev, struct tgl_message *M) {
     print_date (ev, M->date);
     mpop_color (ev);
     mprintf (ev, " ");
-    printf ("{print_message} "); //Shreyashack
+    printf ("{print_message} "); //Shreyashack 
     print_chat_name (ev, M->to_id, tgl_peer_get (TLS, M->to_id));
     mprintf (ev, " ");
     print_user_name (ev, M->from_id, tgl_peer_get (TLS, M->from_id));
@@ -2965,7 +2960,6 @@ void print_message (struct in_ev *ev, struct tgl_message *M) {
     } else {
       mpush_color (ev, COLOR_BLUE);
     }
-
     if (M->unread) {
       mprintf (ev, " >>> ");
     } else {
@@ -2985,10 +2979,8 @@ void print_message (struct in_ev *ev, struct tgl_message *M) {
   }
   mpop_color (ev);
   assert (!color_stack_pos);
-  printf ("{end_print_message}\n");
+  printf ("{end_print_message}\n"); //SHREYASHACK
   mprintf (ev, "\n");
-
-
   //print_end();
 }
 
